@@ -9,6 +9,7 @@
 [![license: LGPL v3](https://pragmatickm.com/ao-badges/license-lgpl-3.0.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
 [![Build](https://github.com/aoindustries/pragmatickm-task-renderer-html/workflows/Build/badge.svg?branch=master)](https://github.com/aoindustries/pragmatickm-task-renderer-html/actions?query=workflow%3ABuild)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.pragmatickm/pragmatickm-task-renderer-html/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.pragmatickm/pragmatickm-task-renderer-html)
 
 [Tasks](https://github.com/aoindustries/pragmatickm-task) rendered as HTML in a Servlet environment.
 
