@@ -80,7 +80,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-final public class TaskUtil {
+public final class TaskUtil {
 
 	public static TaskLog getTaskLogInDomain(
 		ServletContext servletContext,

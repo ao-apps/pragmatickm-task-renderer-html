@@ -67,7 +67,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-final public class TaskHtmlRenderer {
+public final class TaskHtmlRenderer {
 
 	// TODO: Unused: private static final String REMOVE_JSP_EXTENSION = ".jsp";
 	// TODO: Unused: private static final String REMOVE_JSPX_EXTENSION = ".jspx";
