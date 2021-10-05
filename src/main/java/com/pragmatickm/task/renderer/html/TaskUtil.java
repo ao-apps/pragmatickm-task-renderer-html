@@ -963,7 +963,7 @@ public final class TaskUtil {
 			),
 			null
 		);
-		// Index tasks by page,id
+		// Index tasks by page, id
 		Map<ElementRef, Task> tasksByKey = AoCollections.newHashMap(allTasks.size());
 		for(Task task : allTasks) {
 			if(tasksByKey.put(task.getElementRef(), task) != null) {
