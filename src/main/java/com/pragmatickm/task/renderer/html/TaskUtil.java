@@ -682,6 +682,8 @@ public final class TaskUtil {
 						try {
 							concurrentResults = SemanticCMS.getInstance(servletContext).getExecutors().getPerProcessor().callAll(concurrentTasks);
 						} catch(InterruptedException e) {
+							// Restore the interrupted status
+							Thread.currentThread().interrupt();
 							throw new ServletException(e);
 						} catch(ExecutionException e) {
 							// Maintain expected exception types while not losing stack trace
