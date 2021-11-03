@@ -136,7 +136,14 @@ public final class TaskUtil {
 		String page,
 		String taskId
 	) throws ServletException, IOException {
-		return getTaskLogInDomain(servletContext, request, null, null, page, taskId);
+		return getTaskLogInDomain(
+			servletContext,
+			request,
+			null,
+			null,
+			page,
+			taskId
+		);
 	}
 
 	public static TaskLog.Entry getMostRecentEntry(TaskLog taskLog, String statuses) throws IOException {
@@ -765,8 +772,8 @@ public final class TaskUtil {
 				}
 				return null;
 			},
-			(Page page) -> page.getChildRefs(),
-			(PageRef childPage) -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+			Page::getChildRefs,
+			childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
 			null
 		);
 		return Collections.unmodifiableList(doAfters);
@@ -849,8 +856,8 @@ public final class TaskUtil {
 						throw new ServletException(e);
 					}
 				},
-				(Page page) -> page.getChildRefs(),
-				(PageRef childPage) -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+				Page::getChildRefs,
+				childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
 				null
 			);
 			// Wrap any with size of 2 or more with unmodifiable, 0 and 1 already are unmodifiable
@@ -993,7 +1000,7 @@ public final class TaskUtil {
 		List<Task> sortedTasks = new ArrayList<>(tasks);
 		Collections.sort(
 			sortedTasks,
-			new Comparator<Task>() {
+			new Comparator<>() {
 				private int dateDiff(Task t1, Task t2) throws TaskException, ServletException, IOException {
 					// Sort by scheduled or unscheduled
 					StatusResult status1 = getStatus(servletContext, request, response, t1, cache, statusCache);
@@ -1114,9 +1121,9 @@ public final class TaskUtil {
 					}
 					return null;
 				},
-				(Page page) -> page.getChildRefs(),
+				Page::getChildRefs,
 				// Child in accessible book
-				(PageRef childPage) -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+				childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
 				null
 			);
 			results = Collections.unmodifiableList(allTasks);
@@ -1148,7 +1155,7 @@ public final class TaskUtil {
 				response,
 				page,
 				CaptureLevel.META,
-				(Page p) -> {
+				p -> {
 					try {
 						for(Element element : p.getElements()) {
 							if(element instanceof Task) {
@@ -1243,9 +1250,9 @@ public final class TaskUtil {
 						throw new ServletException(e);
 					}
 				},
-				(Page p) -> p.getChildRefs(),
+				Page::getChildRefs,
 				// Child in accessible book
-				(PageRef childPage) -> semanticCMS.getBook(childPage.getBookRef()).isAccessible()
+				childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible()
 			) != null;
 			hasAssignedTaskCache.put(cacheKey, result);
 		}
@@ -1325,9 +1332,9 @@ public final class TaskUtil {
 						throw new ServletException(e);
 					}
 				},
-				(Page page) -> page.getChildRefs(),
+				Page::getChildRefs,
 				// Child in accessible book
-				(PageRef childPage) -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+				childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
 				null
 			);
 			results = Collections.unmodifiableList(readyTasks);
@@ -1410,9 +1417,9 @@ public final class TaskUtil {
 						throw new ServletException(e);
 					}
 				},
-				(Page page) -> page.getChildRefs(),
+				Page::getChildRefs,
 				// Child in accessible book
-				(PageRef childPage) -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+				childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
 				null
 			);
 			results = Collections.unmodifiableList(blockedTasks);
@@ -1485,9 +1492,9 @@ public final class TaskUtil {
 						throw new ServletException(e);
 					}
 				},
-				(Page page) -> page.getChildRefs(),
+				Page::getChildRefs,
 				// Child in accessible book
-				(PageRef childPage) -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+				childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
 				null
 			);
 			results = Collections.unmodifiableList(futureTasks);
