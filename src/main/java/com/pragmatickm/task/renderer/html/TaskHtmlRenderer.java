@@ -67,7 +67,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public final class TaskHtmlRenderer {
+public abstract class TaskHtmlRenderer {
+
+	/** Make no instances. */
+	private TaskHtmlRenderer() {throw new AssertionError();}
 
 	// TODO: Unused: private static final String REMOVE_JSP_EXTENSION = ".jsp";
 	// TODO: Unused: private static final String REMOVE_JSPX_EXTENSION = ".jspx";
@@ -380,11 +383,5 @@ public final class TaskHtmlRenderer {
 				});
 			}
 		}
-	}
-
-	/**
-	 * Make no instances.
-	 */
-	private TaskHtmlRenderer() {
 	}
 }

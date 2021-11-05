@@ -33,7 +33,10 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Provides static access to the cookie values.
  */
-public class Cookies {
+public abstract class Cookies {
+
+	/** Make no instances. */
+	private Cookies() {throw new AssertionError();}
 
 	public enum CookieName {
 		user
@@ -77,11 +80,5 @@ public class Cookies {
 				);
 			}
 		}
-	}
-
-	/**
-	 * Make no instances.
-	 */
-	private Cookies() {
 	}
 }
