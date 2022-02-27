@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-renderer-html - Tasks rendered as HTML in a Servlet environment.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -67,7 +67,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public abstract class TaskHtmlRenderer {
+public final class TaskHtmlRenderer {
 
 	/** Make no instances. */
 	private TaskHtmlRenderer() {throw new AssertionError();}
