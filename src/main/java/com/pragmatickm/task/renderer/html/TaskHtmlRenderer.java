@@ -328,7 +328,7 @@ public final class TaskHtmlRenderer {
 		List<? extends Task> tasks,
 		Map<Task, StatusResult> statuses,
 		String label
-	) throws ServletException, IOException, TaskException {
+	) throws IOException {
 		int size = tasks.size();
 		if(size > 0) {
 			HtmlRenderer htmlRenderer = HtmlRenderer.getInstance(servletContext);
