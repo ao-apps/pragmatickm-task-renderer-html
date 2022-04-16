@@ -20,6 +20,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with pragmatickm-task-renderer-html.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package com.pragmatickm.task.renderer.html;
 
 import static com.aoapps.servlet.http.Cookies.addCookie;
