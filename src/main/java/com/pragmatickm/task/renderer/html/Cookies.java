@@ -36,50 +36,52 @@ import javax.servlet.http.HttpServletResponse;
  */
 public final class Cookies {
 
-	/** Make no instances. */
-	private Cookies() {throw new AssertionError();}
+  /** Make no instances. */
+  private Cookies() {
+    throw new AssertionError();
+  }
 
-	public enum CookieName {
-		user
-	}
+  public enum CookieName {
+    user
+  }
 
-	public static User getUser(HttpServletRequest request) {
-		String cookie = getCookie(request, CookieName.user.name());
-		if(cookie == null) {
-			return null;
-		} else {
-			try {
-				return User.valueOf(cookie);
-			} catch(IllegalArgumentException e) {
-				// Ignore unexpected cookie values
-				return null;
-			}
-		}
-	}
+  public static User getUser(HttpServletRequest request) {
+    String cookie = getCookie(request, CookieName.user.name());
+    if (cookie == null) {
+      return null;
+    } else {
+      try {
+        return User.valueOf(cookie);
+      } catch (IllegalArgumentException e) {
+        // Ignore unexpected cookie values
+        return null;
+      }
+    }
+  }
 
-	public static void setUser(HttpServletRequest request, HttpServletResponse response, User user) {
-		// Do not actually set any cookies while exporting
-		if(!Headers.isExporting(request)) {
-			if(user==null) {
-				removeCookie(
-					request,
-					response,
-					CookieName.user.name(),
-					false,
-					true
-				);
-			} else {
-				addCookie(
-					request,
-					response,
-					CookieName.user.name(),
-					user.name(),
-					"The current user name",
-					365 * 24 & 60 * 60,
-					false,
-					true
-				);
-			}
-		}
-	}
+  public static void setUser(HttpServletRequest request, HttpServletResponse response, User user) {
+    // Do not actually set any cookies while exporting
+    if (!Headers.isExporting(request)) {
+      if (user == null) {
+        removeCookie(
+          request,
+          response,
+          CookieName.user.name(),
+          false,
+          true
+        );
+      } else {
+        addCookie(
+          request,
+          response,
+          CookieName.user.name(),
+          user.name(),
+          "The current user name",
+          365 * 24 & 60 * 60,
+          false,
+          true
+        );
+      }
+    }
+  }
 }
