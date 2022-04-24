@@ -84,8 +84,8 @@ public final class TaskHtmlRenderer {
   private static void writeRow(String header, String value, AnyUnion_TBODY_THEAD_TFOOT<?, ?> content) throws IOException {
     if (value != null) {
       content.tr__any(tr -> tr
-        .th__(header)
-        .td().colspan(3).__(value)
+              .th__(header)
+              .td().colspan(3).__(value)
       );
     }
   }
@@ -95,15 +95,15 @@ public final class TaskHtmlRenderer {
       int size = values.size();
       if (size > 0) {
         content.tr__any(tr -> tr
-          .th__(header)
-          .td().colspan(3).__(td -> {
-            for (int i = 0; i < size; i++) {
-              if (i != 0) {
-                td.br__();
+                .th__(header)
+                .td().colspan(3).__(td -> {
+              for (int i = 0; i < size; i++) {
+                if (i != 0) {
+                  td.br__();
+                }
+                td.text(values.get(i));
               }
-              td.text(values.get(i));
-            }
-          })
+            })
         );
       }
     }
@@ -118,11 +118,11 @@ public final class TaskHtmlRenderer {
   private static void writeRow(String header, Recurring recurring, boolean relative, AnyUnion_TBODY_THEAD_TFOOT<?, ?> content) throws IOException {
     if (recurring != null) {
       writeRow(
-        header,
-        relative
-          ? (recurring.getRecurringDisplay() + " (Relative)")
-          : recurring.getRecurringDisplay(),
-        content
+          header,
+          relative
+              ? (recurring.getRecurringDisplay() + " (Relative)")
+              : recurring.getRecurringDisplay(),
+          content
       );
     }
   }
@@ -133,13 +133,13 @@ public final class TaskHtmlRenderer {
    *          For all other capture levels returns {@code null}.
    */
   public static AnyTBODY_c<?, ? extends AnyTABLE_c<?, ?, ?>, ?> writeBeforeBody(
-    ServletContext servletContext,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    CaptureLevel captureLevel,
-    AnyPalpableContent<?, ?> palpable,
-    Task task,
-    Object style
+      ServletContext servletContext,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      CaptureLevel captureLevel,
+      AnyPalpableContent<?, ?> palpable,
+      Task task,
+      Object style
   ) throws TaskException, IOException, ServletException {
     final Page currentPage = CurrentPage.getCurrentPage(request);
 
@@ -176,11 +176,11 @@ public final class TaskHtmlRenderer {
         // TODO: Concurrent capture here?
         for (ElementRef doBefore : doBeforeRefs) {
           Element elem = CapturePage.capturePage(
-            servletContext,
-            request,
-            response,
-            doBefore.getPageRef(),
-            CaptureLevel.META
+              servletContext,
+              request,
+              response,
+              doBefore.getPageRef(),
+              CaptureLevel.META
           ).getElementsById().get(doBefore.getId());
           if (elem == null) {
             throw new TaskException("Element not found: " + doBefore);
@@ -191,7 +191,7 @@ public final class TaskHtmlRenderer {
           if (elem.getPage().getGeneratedIds().contains(elem.getId())) {
             throw new TaskException("Not allowed to reference task by generated id, set an explicit id on the task: " + elem);
           }
-          doBefores.add((Task)elem);
+          doBefores.add((Task) elem);
         }
       }
       // Find the doAfters
@@ -200,9 +200,9 @@ public final class TaskHtmlRenderer {
       Map<Task, StatusResult> statuses;
       {
         Set<Task> allTasks = AoCollections.newHashSet(
-          doBefores.size()
-          + 1 // this task
-          + doAfters.size()
+            doBefores.size()
+                + 1 // this task
+                + doAfters.size()
         );
         allTasks.addAll(doBefores);
         allTasks.add(task);
@@ -212,55 +212,55 @@ public final class TaskHtmlRenderer {
       // Write the task itself to this page
       final PageIndex pageIndex = PageIndex.getCurrentPageIndex(request);
       AnyTBODY_c<?, ? extends AnyTABLE_c<?, ?, ?>, ?> tbody = palpable.table()
-        .id(idAttr -> PageIndex.appendIdInPage(
-          pageIndex,
-          currentPage,
-          task.getId(),
-          idAttr
-        ))
-        .clazz("ao-grid", "pragmatickm-task")
-        .style(style)
-      ._c()
-        .thead__any(thead -> thead
-          .tr__any(tr -> tr
-            .th().colspan(4).__(th -> th
-              .div__(task)
-            )
+          .id(idAttr -> PageIndex.appendIdInPage(
+              pageIndex,
+              currentPage,
+              task.getId(),
+              idAttr
+          ))
+          .clazz("ao-grid", "pragmatickm-task")
+          .style(style)
+          ._c()
+          .thead__any(thead -> thead
+                  .tr__any(tr -> tr
+                          .th().colspan(4).__(th -> th
+                              .div__(task)
+                      )
+                  )
           )
-        )
-        .tbody_c();
-          final long now = System.currentTimeMillis();
-          writeTasks(servletContext, request, response, tbody, currentPage, now, doBefores, statuses, "Do Before:");
-          StatusResult status = statuses.get(task);
-          tbody.tr__any(tr -> tr
-            .th__("Status:")
-            .td().clazz(status.getStyle().getCssClass()).colspan(3).__(status.getDescription())
-          );
-          String comments = status.getComments();
-          if (comments != null && !comments.isEmpty()) {
-            tbody.tr__any(tr -> tr
-              .th__("Status Comment:")
-              .td().colspan(3).__(comments)
-            );
+          .tbody_c();
+      final long now = System.currentTimeMillis();
+      writeTasks(servletContext, request, response, tbody, currentPage, now, doBefores, statuses, "Do Before:");
+      StatusResult status = statuses.get(task);
+      tbody.tr__any(tr -> tr
+              .th__("Status:")
+              .td().clazz(status.getStyle().getCssClass()).colspan(3).__(status.getDescription())
+      );
+      String comments = status.getComments();
+      if (comments != null && !comments.isEmpty()) {
+        tbody.tr__any(tr -> tr
+                .th__("Status Comment:")
+                .td().colspan(3).__(comments)
+        );
+      }
+      // TODO: When there are no current status comments, show any tasklog comments from the last entry
+      List<TaskPriority> taskPriorities = task.getPriorities();
+      for (int i_ = 0, size = taskPriorities.size(); i_ < size; i_++) {
+        int i = i_;
+        TaskPriority taskPriority = taskPriorities.get(i);
+        tbody.tr__any(tr -> {
+          if (i == 0) {
+            tr.th().rowspan(size).__("Priority");
           }
-          // TODO: When there are no current status comments, show any tasklog comments from the last entry
-          List<TaskPriority> taskPriorities = task.getPriorities();
-          for (int i_ = 0, size = taskPriorities.size(); i_ < size; i_++) {
-            int i = i_;
-            TaskPriority taskPriority = taskPriorities.get(i);
-            tbody.tr__any(tr -> {
-              if (i == 0) {
-                tr.th().rowspan(size).__("Priority");
-              }
-              tr.td().clazz(taskPriority.getPriority().getCssClass()).colspan(3).__(taskPriority);
-            });
-          }
-          writeRow(recurring == null ? "On:" : "Starting:", task.getOn(), tbody);
-          writeRow("Recurring:", recurring, relative, tbody);
-          writeRow("Assigned To:", task.getAssignedTo(), tbody);
-          writeRow("Pay:", task.getPay(), tbody);
-          writeRow("Cost:", task.getCost(), tbody);
-          writeTasks(servletContext, request, response, tbody, currentPage, now, doAfters, statuses, "Do After:");
+          tr.td().clazz(taskPriority.getPriority().getCssClass()).colspan(3).__(taskPriority);
+        });
+      }
+      writeRow(recurring == null ? "On:" : "Starting:", task.getOn(), tbody);
+      writeRow("Recurring:", recurring, relative, tbody);
+      writeRow("Assigned To:", task.getAssignedTo(), tbody);
+      writeRow("Pay:", task.getPay(), tbody);
+      writeRow("Cost:", task.getCost(), tbody);
+      writeTasks(servletContext, request, response, tbody, currentPage, now, doAfters, statuses, "Do After:");
       return tbody;
     } else {
       return null;
@@ -274,40 +274,40 @@ public final class TaskHtmlRenderer {
    *          {@link #writeAfterBody(com.pragmatickm.task.model.Task, com.aoapps.html.any.AnyTBODY_c, com.semanticcms.core.model.ElementContext)}.
    */
   public static AnyTBODY_c<?, ? extends AnyTABLE_c<?, ?, ?>, ?> writeBeforeBody(
-    ServletContext servletContext,
-    ELContext elContext,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    CaptureLevel captureLevel,
-    AnyPalpableContent<?, ?> palpable,
-    Task task,
-    ValueExpression style
+      ServletContext servletContext,
+      ELContext elContext,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      CaptureLevel captureLevel,
+      AnyPalpableContent<?, ?> palpable,
+      Task task,
+      ValueExpression style
   ) throws TaskException, IOException, ServletException {
     return writeBeforeBody(
-      servletContext,
-      request,
-      response,
-      captureLevel,
-      palpable,
-      task,
-      captureLevel == CaptureLevel.BODY ? resolveValue(style, Object.class, elContext) : null
+        servletContext,
+        request,
+        response,
+        captureLevel,
+        palpable,
+        task,
+        captureLevel == CaptureLevel.BODY ? resolveValue(style, Object.class, elContext) : null
     );
   }
 
   public static void writeAfterBody(Task task, AnyTBODY_c<?, ? extends AnyTABLE_c<?, ?, ?>, ?> tbody, ElementContext context) throws IOException {
-        BufferResult body = task.getBody();
-        if (body.getLength() > 0) {
-          tbody.tr__any(tr -> tr
-            .td().colspan(4).__(td -> {
-              @SuppressWarnings("deprecation")
-              Writer unsafe = td.getRawUnsafe();
-              body.writeTo(new NodeBodyWriter(task, unsafe, context));
-            })
-          );
-        }
-        tbody
-      .__()
-    .__();
+    BufferResult body = task.getBody();
+    if (body.getLength() > 0) {
+      tbody.tr__any(tr -> tr
+              .td().colspan(4).__(td -> {
+            @SuppressWarnings("deprecation")
+            Writer unsafe = td.getRawUnsafe();
+            body.writeTo(new NodeBodyWriter(task, unsafe, context));
+          })
+      );
+    }
+    tbody
+        .__()
+        .__();
   }
 
   /**
@@ -336,15 +336,15 @@ public final class TaskHtmlRenderer {
   }
 
   private static void writeTasks(
-    ServletContext servletContext,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    AnyUnion_TBODY_THEAD_TFOOT<?, ?> content,
-    Page currentPage,
-    long now,
-    List<? extends Task> tasks,
-    Map<Task, StatusResult> statuses,
-    String label
+      ServletContext servletContext,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      AnyUnion_TBODY_THEAD_TFOOT<?, ?> content,
+      Page currentPage,
+      long now,
+      List<? extends Task> tasks,
+      Map<Task, StatusResult> statuses,
+      String label
   ) throws IOException {
     int size = tasks.size();
     if (size > 0) {
@@ -360,45 +360,45 @@ public final class TaskHtmlRenderer {
             tr.th().rowspan(size).__(label);
           }
           tr.td().clazz(status.getStyle().getCssClass()).__(status.getDescription())
-          .td().clazz(priority.getCssClass()).__(priority)
-          .td__any(td -> {
-            PageIndex pageIndex = PageIndex.getCurrentPageIndex(request);
-            final PageRef taskPageRef = taskPage.getPageRef();
-            Integer index = pageIndex == null ? null : pageIndex.getPageIndex(taskPageRef);
-            StringBuilder href = new StringBuilder();
-            if (index != null) {
-              // view=all mode
-              href.append('#');
-              URIEncoder.encodeURIComponent(
-                PageIndex.getRefId(
-                  index,
-                  task.getId()
-                ),
-                href
-              );
-            } else if (taskPage.equals(currentPage)) {
-              // Task on this page, generate anchor-only link
-              href.append('#');
-              URIEncoder.encodeURIComponent(task.getId(), href);
-            } else {
-              // Task on other page, generate full link
-              BookRef taskBookRef = taskPageRef.getBookRef();
-              URIEncoder.encodeURI(request.getContextPath(), href);
-              URIEncoder.encodeURI(taskBookRef.getPrefix(), href);
-              URIEncoder.encodeURI(taskPageRef.getPath().toString(), href);
-              href.append('#');
-              URIEncoder.encodeURIComponent(task.getId(), href);
-            }
-            td.a()
-              .clazz(htmlRenderer.getLinkCssClass(task))
-              .href(response.encodeURL(href.toString()))
-            .__(a -> {
-              a.text(task);
-              if (index != null) {
-                a.sup__any(sup -> sup.text('[').text(Integer.toString(index+1)).text(']'));
-              }
-            });
-          });
+              .td().clazz(priority.getCssClass()).__(priority)
+              .td__any(td -> {
+                PageIndex pageIndex = PageIndex.getCurrentPageIndex(request);
+                final PageRef taskPageRef = taskPage.getPageRef();
+                Integer index = pageIndex == null ? null : pageIndex.getPageIndex(taskPageRef);
+                StringBuilder href = new StringBuilder();
+                if (index != null) {
+                  // view=all mode
+                  href.append('#');
+                  URIEncoder.encodeURIComponent(
+                      PageIndex.getRefId(
+                          index,
+                          task.getId()
+                      ),
+                      href
+                  );
+                } else if (taskPage.equals(currentPage)) {
+                  // Task on this page, generate anchor-only link
+                  href.append('#');
+                  URIEncoder.encodeURIComponent(task.getId(), href);
+                } else {
+                  // Task on other page, generate full link
+                  BookRef taskBookRef = taskPageRef.getBookRef();
+                  URIEncoder.encodeURI(request.getContextPath(), href);
+                  URIEncoder.encodeURI(taskBookRef.getPrefix(), href);
+                  URIEncoder.encodeURI(taskPageRef.getPath().toString(), href);
+                  href.append('#');
+                  URIEncoder.encodeURIComponent(task.getId(), href);
+                }
+                td.a()
+                    .clazz(htmlRenderer.getLinkCssClass(task))
+                    .href(response.encodeURL(href.toString()))
+                    .__(a -> {
+                      a.text(task);
+                      if (index != null) {
+                        a.sup__any(sup -> sup.text('[').text(Integer.toString(index + 1)).text(']'));
+                      }
+                    });
+              });
         });
       }
     }

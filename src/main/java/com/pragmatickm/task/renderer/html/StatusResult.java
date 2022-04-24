@@ -88,13 +88,13 @@ public class StatusResult {
   private final UnmodifiableCalendar date;
 
   StatusResult(
-    Style style,
-    String description,
-    String comments,
-    boolean completedSchedule,
-    boolean readySchedule,
-    boolean futureSchedule,
-    Calendar date
+      Style style,
+      String description,
+      String comments,
+      boolean completedSchedule,
+      boolean readySchedule,
+      boolean futureSchedule,
+      Calendar date
   ) {
     if (completedSchedule && readySchedule) {
       throw new AssertionError("A task may not be both completed and ready");
@@ -112,11 +112,11 @@ public class StatusResult {
   }
 
   StatusResult(
-    TaskLog.Status taskStatus,
-    String comments,
-    boolean allDoBeforesCompleted,
-    boolean futureSchedule,
-    Calendar date
+      TaskLog.Status taskStatus,
+      String comments,
+      boolean allDoBeforesCompleted,
+      boolean futureSchedule,
+      Calendar date
   ) {
     if (allDoBeforesCompleted) {
       this.style = Style.getStyle(taskStatus);

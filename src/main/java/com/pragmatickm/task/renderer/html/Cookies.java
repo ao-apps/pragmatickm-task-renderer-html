@@ -64,22 +64,22 @@ public final class Cookies {
     if (!Headers.isExporting(request)) {
       if (user == null) {
         removeCookie(
-          request,
-          response,
-          CookieName.user.name(),
-          false,
-          true
+            request,
+            response,
+            CookieName.user.name(),
+            false,
+            true
         );
       } else {
         addCookie(
-          request,
-          response,
-          CookieName.user.name(),
-          user.name(),
-          "The current user name",
-          365 * 24 & 60 * 60,
-          false,
-          true
+            request,
+            response,
+            CookieName.user.name(),
+            user.name(),
+            "The current user name",
+            365 * 24 & 60 * 60,
+            false,
+            true
         );
       }
     }
