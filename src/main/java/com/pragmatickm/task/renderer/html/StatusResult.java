@@ -33,17 +33,39 @@ public class StatusResult {
    * The CSS classes for different overall statuses.
    */
   public enum Style {
-    NEW                       ("pragmatickm-task-status-new"),
-    NEW_WAITING_DO_AFTER      ("pragmatickm-task-status-new-waiting-do-after"),
-    IN_FUTURE                 ("pragmatickm-task-status-in-future"),
-    DUE_TODAY                 ("pragmatickm-task-status-due-today"),
-    DUE_TODAY_WAITING_DO_AFTER("pragmatickm-task-status-due-today-waiting-do-after"),
-    LATE                      ("pragmatickm-task-status-late"),
-    LATE_WAITING_DO_AFTER     ("pragmatickm-task-status-late-waiting-do-after"),
-    PROGRESS                  ("pragmatickm-task-status-progress"),
-    PROGRESS_WAITING_DO_AFTER ("pragmatickm-task-status-progress-waiting-do-after"),
-    COMPLETED                 ("pragmatickm-task-status-completed"),
-    MISSED                    ("pragmatickm-task-status-missed");
+    NEW(
+        "pragmatickm-task-status-new"
+    ),
+    NEW_WAITING_DO_AFTER(
+        "pragmatickm-task-status-new-waiting-do-after"
+    ),
+    IN_FUTURE(
+        "pragmatickm-task-status-in-future"
+    ),
+    DUE_TODAY(
+        "pragmatickm-task-status-due-today"
+    ),
+    DUE_TODAY_WAITING_DO_AFTER(
+        "pragmatickm-task-status-due-today-waiting-do-after"
+    ),
+    LATE(
+        "pragmatickm-task-status-late"
+    ),
+    LATE_WAITING_DO_AFTER(
+        "pragmatickm-task-status-late-waiting-do-after"
+    ),
+    PROGRESS(
+        "pragmatickm-task-status-progress"
+    ),
+    PROGRESS_WAITING_DO_AFTER(
+        "pragmatickm-task-status-progress-waiting-do-after"
+    ),
+    COMPLETED(
+        "pragmatickm-task-status-completed"
+    ),
+    MISSED(
+        "pragmatickm-task-status-missed"
+    );
 
     private final String cssClass;
 
@@ -60,21 +82,31 @@ public class StatusResult {
      */
     public static Style getStyle(TaskLog.Status taskLogStatus) {
       switch (taskLogStatus) {
-        case PROGRESS      : return PROGRESS;
-        case COMPLETED     : return COMPLETED;
-        case NOTHING_TO_DO : return COMPLETED;
-        case MISSED        : return MISSED;
-        default            : throw new AssertionError("Unexpected value for taskLogStatus: " + taskLogStatus);
+        case PROGRESS:
+          return PROGRESS;
+        case COMPLETED:
+          return COMPLETED;
+        case NOTHING_TO_DO:
+          return COMPLETED;
+        case MISSED:
+          return MISSED;
+        default:
+          throw new AssertionError("Unexpected value for taskLogStatus: " + taskLogStatus);
       }
     }
 
     public static Style getStyleDoBefore(TaskLog.Status taskLogStatus) {
       switch (taskLogStatus) {
-        case PROGRESS      : return PROGRESS_WAITING_DO_AFTER;
-        case COMPLETED     : return COMPLETED;
-        case NOTHING_TO_DO : return COMPLETED;
-        case MISSED        : return MISSED;
-        default            : throw new AssertionError("Unexpected value for taskLogStatus: " + taskLogStatus);
+        case PROGRESS:
+          return PROGRESS_WAITING_DO_AFTER;
+        case COMPLETED:
+          return COMPLETED;
+        case NOTHING_TO_DO:
+          return COMPLETED;
+        case MISSED:
+          return MISSED;
+        default:
+          throw new AssertionError("Unexpected value for taskLogStatus: " + taskLogStatus);
       }
     }
   }

@@ -155,14 +155,14 @@ public final class TaskUtil {
   public static TaskLog.Entry getMostRecentEntry(TaskLog taskLog, String statuses) throws IOException {
     String[] trimmed;
     int size;
-    {
-      List<String> split = Strings.split(statuses, ','); // Split on comma only, because of "Nothing To Do" status having spaces
-      size = split.size();
-      trimmed = new String[size];
-      for (int i = 0; i < size; i++) {
-        trimmed[i] = split.get(i).trim();
+      {
+        List<String> split = Strings.split(statuses, ','); // Split on comma only, because of "Nothing To Do" status having spaces
+        size = split.size();
+        trimmed = new String[size];
+        for (int i = 0; i < size; i++) {
+          trimmed[i] = split.get(i).trim();
+        }
       }
-    }
     List<TaskLog.Entry> entries = taskLog.getEntries();
     for (int i = entries.size() - 1; i >= 0; i--) {
       TaskLog.Entry entry = entries.get(i);
@@ -684,25 +684,25 @@ public final class TaskUtil {
             //System.err.println("notCachedSize = " + notCachedSize + ", doing concurrent getStatus");
             // Concurrent implementation
             List<Callable<StatusResult>> concurrentTasks = new ArrayList<>(notCachedSize);
-            {
-              final HttpServletRequest threadSafeReq = new UnmodifiableCopyHttpServletRequest(request);
-              final HttpServletResponse threadSafeResp = new UnmodifiableCopyHttpServletResponse(response);
-              final TempFileContext tempFileContext = TempFileContextEE.get(request);
-              for (final Task task : notCached) {
-                concurrentTasks.add((Callable<StatusResult>) () -> {
-                  HttpServletRequest subrequest = new HttpServletSubRequest(threadSafeReq);
-                  HttpServletResponse subresponse = new HttpServletSubResponse(threadSafeResp, tempFileContext);
-                  return getStatus(
-                      servletContext,
-                      subrequest,
-                      subresponse,
-                      task,
-                      cache,
-                      statusCache
-                  );
-                });
+              {
+                final HttpServletRequest threadSafeReq = new UnmodifiableCopyHttpServletRequest(request);
+                final HttpServletResponse threadSafeResp = new UnmodifiableCopyHttpServletResponse(response);
+                final TempFileContext tempFileContext = TempFileContextEE.get(request);
+                for (final Task task : notCached) {
+                  concurrentTasks.add((Callable<StatusResult>) () -> {
+                    HttpServletRequest subrequest = new HttpServletSubRequest(threadSafeReq);
+                    HttpServletResponse subresponse = new HttpServletSubResponse(threadSafeResp, tempFileContext);
+                    return getStatus(
+                        servletContext,
+                        subrequest,
+                        subresponse,
+                        task,
+                        cache,
+                        statusCache
+                    );
+                  });
+                }
               }
-            }
             List<StatusResult> concurrentResults;
             try {
               concurrentResults = SemanticCMS.getInstance(servletContext).getExecutors().getPerProcessor().callAll(concurrentTasks);
@@ -767,12 +767,12 @@ public final class TaskUtil {
     final String taskId = task.getId();
     final Page taskPage = task.getPage();
     final List<Task> doAfters = new ArrayList<>();
-    final SemanticCMS semanticCMS = SemanticCMS.getInstance(servletContext);
+    final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
     CapturePage.traversePagesDepthFirst(
         servletContext,
         request,
         response,
-        semanticCMS.getRootBook().getContentRoot(),
+        semanticCms.getRootBook().getContentRoot(),
         CaptureLevel.META,
         (Page page, int depth) -> {
           for (Element element : page.getElements()) {
@@ -791,7 +791,7 @@ public final class TaskUtil {
           return null;
         },
         Page::getChildRefs,
-        childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+        childPage -> semanticCms.getBook(childPage.getBookRef()).isAccessible(),
         null
     );
     return Collections.unmodifiableList(doAfters);
@@ -825,23 +825,23 @@ public final class TaskUtil {
       final Map<Task, List<Task>> results = AoCollections.newLinkedHashMap(size);
       // Build map from ElementRef back to Task, for fast lookup during traversal
       final Map<ElementRef, Task> tasksByElementRef = AoCollections.newHashMap(size);
-      {
-        List<Task> emptyList = Collections.emptyList();
-        for (Task task : tasks) {
-          if (results.put(task, emptyList) != null) {
-            throw new AssertionError();
-          }
-          if (tasksByElementRef.put(task.getElementRef(), task) != null) {
-            throw new AssertionError();
+        {
+          List<Task> emptyList = Collections.emptyList();
+          for (Task task : tasks) {
+            if (results.put(task, emptyList) != null) {
+              throw new AssertionError();
+            }
+            if (tasksByElementRef.put(task.getElementRef(), task) != null) {
+              throw new AssertionError();
+            }
           }
         }
-      }
-      final SemanticCMS semanticCMS = SemanticCMS.getInstance(servletContext);
+      final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
       CapturePage.traversePagesDepthFirst(
           servletContext,
           request,
           response,
-          semanticCMS.getRootBook().getContentRoot(),
+          semanticCms.getRootBook().getContentRoot(),
           CaptureLevel.META,
           (Page page, int depth) -> {
             try {
@@ -877,7 +877,7 @@ public final class TaskUtil {
             }
           },
           Page::getChildRefs,
-          childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+          childPage -> semanticCms.getBook(childPage.getBookRef()).isAccessible(),
           null
       );
       // Wrap any with size of 2 or more with unmodifiable, 0 and 1 already are unmodifiable
@@ -1142,7 +1142,7 @@ public final class TaskUtil {
     List<Task> results = cache.get(cacheKey);
     if (results == null) {
       final List<Task> allTasks = new ArrayList<>();
-      final SemanticCMS semanticCMS = SemanticCMS.getInstance(servletContext);
+      final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
       CapturePage.traversePagesDepthFirst(
           servletContext,
           request,
@@ -1165,7 +1165,7 @@ public final class TaskUtil {
           },
           Page::getChildRefs,
           // Child in accessible book
-          childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+          childPage -> semanticCms.getBook(childPage.getBookRef()).isAccessible(),
           null
       );
       results = Collections.unmodifiableList(allTasks);
@@ -1190,7 +1190,7 @@ public final class TaskUtil {
     Boolean result = hasAssignedTaskCache.get(cacheKey);
     if (result == null) {
       final long now = System.currentTimeMillis();
-      final SemanticCMS semanticCMS = SemanticCMS.getInstance(servletContext);
+      final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
       result = CapturePage.traversePagesAnyOrder(
           servletContext,
           request,
@@ -1294,7 +1294,7 @@ public final class TaskUtil {
           },
           Page::getChildRefs,
           // Child in accessible book
-          childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible()
+          childPage -> semanticCms.getBook(childPage.getBookRef()).isAccessible()
       ) != null;
       hasAssignedTaskCache.put(cacheKey, result);
     }
@@ -1318,7 +1318,7 @@ public final class TaskUtil {
     if (results == null) {
       final long now = System.currentTimeMillis();
       final List<Task> readyTasks = new ArrayList<>();
-      final SemanticCMS semanticCMS = SemanticCMS.getInstance(servletContext);
+      final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
       CapturePage.traversePagesDepthFirst(
           servletContext,
           request,
@@ -1376,7 +1376,7 @@ public final class TaskUtil {
           },
           Page::getChildRefs,
           // Child in accessible book
-          childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+          childPage -> semanticCms.getBook(childPage.getBookRef()).isAccessible(),
           null
       );
       results = Collections.unmodifiableList(readyTasks);
@@ -1402,7 +1402,7 @@ public final class TaskUtil {
     if (results == null) {
       final long now = System.currentTimeMillis();
       final List<Task> blockedTasks = new ArrayList<>();
-      final SemanticCMS semanticCMS = SemanticCMS.getInstance(servletContext);
+      final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
       CapturePage.traversePagesDepthFirst(
           servletContext,
           request,
@@ -1461,7 +1461,7 @@ public final class TaskUtil {
           },
           Page::getChildRefs,
           // Child in accessible book
-          childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+          childPage -> semanticCms.getBook(childPage.getBookRef()).isAccessible(),
           null
       );
       results = Collections.unmodifiableList(blockedTasks);
@@ -1487,7 +1487,7 @@ public final class TaskUtil {
     if (results == null) {
       final long now = System.currentTimeMillis();
       final List<Task> futureTasks = new ArrayList<>();
-      final SemanticCMS semanticCMS = SemanticCMS.getInstance(servletContext);
+      final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
       CapturePage.traversePagesDepthFirst(
           servletContext,
           request,
@@ -1536,7 +1536,7 @@ public final class TaskUtil {
           },
           Page::getChildRefs,
           // Child in accessible book
-          childPage -> semanticCMS.getBook(childPage.getBookRef()).isAccessible(),
+          childPage -> semanticCms.getBook(childPage.getBookRef()).isAccessible(),
           null
       );
       results = Collections.unmodifiableList(futureTasks);

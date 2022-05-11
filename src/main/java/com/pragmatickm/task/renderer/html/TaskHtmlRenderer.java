@@ -23,6 +23,8 @@
 
 package com.pragmatickm.task.renderer.html;
 
+import static com.aoapps.taglib.AttributeUtils.resolveValue;
+
 import com.aoapps.collections.AoCollections;
 import com.aoapps.hodgepodge.schedule.Recurring;
 import com.aoapps.html.any.AnyPalpableContent;
@@ -35,7 +37,6 @@ import com.aoapps.lang.util.CalendarUtils;
 import com.aoapps.lang.validation.ValidationException;
 import com.aoapps.net.Path;
 import com.aoapps.net.URIEncoder;
-import static com.aoapps.taglib.AttributeUtils.resolveValue;
 import com.pragmatickm.task.model.Priority;
 import com.pragmatickm.task.model.Task;
 import com.pragmatickm.task.model.TaskException;
@@ -84,8 +85,8 @@ public final class TaskHtmlRenderer {
   private static void writeRow(String header, String value, AnyUnion_TBODY_THEAD_TFOOT<?, ?> content) throws IOException {
     if (value != null) {
       content.tr__any(tr -> tr
-              .th__(header)
-              .td().colspan(3).__(value)
+          .th__(header)
+          .td().colspan(3).__(value)
       );
     }
   }
@@ -95,8 +96,8 @@ public final class TaskHtmlRenderer {
       int size = values.size();
       if (size > 0) {
         content.tr__any(tr -> tr
-                .th__(header)
-                .td().colspan(3).__(td -> {
+            .th__(header)
+            .td().colspan(3).__(td -> {
               for (int i = 0; i < size; i++) {
                 if (i != 0) {
                   td.br__();
@@ -128,6 +129,8 @@ public final class TaskHtmlRenderer {
   }
 
   /**
+   * Writes the part before the body.
+   *
    * @return  When captureLevel == BODY, the tbody, which may be used to write additional content and must be passed onto
    *          {@link #writeAfterBody(com.pragmatickm.task.model.Task, com.aoapps.html.any.AnyTBODY_c, com.semanticcms.core.model.ElementContext)}.
    *          For all other capture levels returns {@code null}.
@@ -168,47 +171,47 @@ public final class TaskHtmlRenderer {
       Cache cache = CacheFilter.getCache(request);
       // Capture the doBefores
       List<Task> doBefores;
-      {
-        // TODO: Concurrent getDoBefores?
-        Set<ElementRef> doBeforeRefs = task.getDoBefores();
-        int size = doBeforeRefs.size();
-        doBefores = new ArrayList<>(size);
-        // TODO: Concurrent capture here?
-        for (ElementRef doBefore : doBeforeRefs) {
-          Element elem = CapturePage.capturePage(
-              servletContext,
-              request,
-              response,
-              doBefore.getPageRef(),
-              CaptureLevel.META
-          ).getElementsById().get(doBefore.getId());
-          if (elem == null) {
-            throw new TaskException("Element not found: " + doBefore);
+        {
+          // TODO: Concurrent getDoBefores?
+          Set<ElementRef> doBeforeRefs = task.getDoBefores();
+          int size = doBeforeRefs.size();
+          doBefores = new ArrayList<>(size);
+          // TODO: Concurrent capture here?
+          for (ElementRef doBefore : doBeforeRefs) {
+            Element elem = CapturePage.capturePage(
+                servletContext,
+                request,
+                response,
+                doBefore.getPageRef(),
+                CaptureLevel.META
+            ).getElementsById().get(doBefore.getId());
+            if (elem == null) {
+              throw new TaskException("Element not found: " + doBefore);
+            }
+            if (!(elem instanceof Task)) {
+              throw new TaskException("Element is not a Task: " + elem.getClass().getName());
+            }
+            if (elem.getPage().getGeneratedIds().contains(elem.getId())) {
+              throw new TaskException("Not allowed to reference task by generated id, set an explicit id on the task: " + elem);
+            }
+            doBefores.add((Task) elem);
           }
-          if (!(elem instanceof Task)) {
-            throw new TaskException("Element is not a Task: " + elem.getClass().getName());
-          }
-          if (elem.getPage().getGeneratedIds().contains(elem.getId())) {
-            throw new TaskException("Not allowed to reference task by generated id, set an explicit id on the task: " + elem);
-          }
-          doBefores.add((Task) elem);
         }
-      }
       // Find the doAfters
       List<Task> doAfters = TaskUtil.getDoAfters(servletContext, request, response, task);
       // Lookup all the statuses at once
       Map<Task, StatusResult> statuses;
-      {
-        Set<Task> allTasks = AoCollections.newHashSet(
-            doBefores.size()
-                + 1 // this task
-                + doAfters.size()
-        );
-        allTasks.addAll(doBefores);
-        allTasks.add(task);
-        allTasks.addAll(doAfters);
-        statuses = TaskUtil.getMultipleStatuses(servletContext, request, response, allTasks, cache);
-      }
+        {
+          Set<Task> allTasks = AoCollections.newHashSet(
+              doBefores.size()
+                  + 1 // this task
+                  + doAfters.size()
+          );
+          allTasks.addAll(doBefores);
+          allTasks.add(task);
+          allTasks.addAll(doAfters);
+          statuses = TaskUtil.getMultipleStatuses(servletContext, request, response, allTasks, cache);
+        }
       // Write the task itself to this page
       final PageIndex pageIndex = PageIndex.getCurrentPageIndex(request);
       AnyTBODY_c<?, ? extends AnyTABLE_c<?, ?, ?>, ?> tbody = palpable.table()
@@ -222,31 +225,31 @@ public final class TaskHtmlRenderer {
           .style(style)
           ._c()
           .thead__any(thead -> thead
-                  .tr__any(tr -> tr
-                          .th().colspan(4).__(th -> th
-                              .div__(task)
-                      )
+              .tr__any(tr -> tr
+                  .th().colspan(4).__(th -> th
+                      .div__(task)
                   )
+              )
           )
           .tbody_c();
       final long now = System.currentTimeMillis();
       writeTasks(servletContext, request, response, tbody, currentPage, now, doBefores, statuses, "Do Before:");
       StatusResult status = statuses.get(task);
       tbody.tr__any(tr -> tr
-              .th__("Status:")
-              .td().clazz(status.getStyle().getCssClass()).colspan(3).__(status.getDescription())
+          .th__("Status:")
+          .td().clazz(status.getStyle().getCssClass()).colspan(3).__(status.getDescription())
       );
       String comments = status.getComments();
       if (comments != null && !comments.isEmpty()) {
         tbody.tr__any(tr -> tr
-                .th__("Status Comment:")
-                .td().colspan(3).__(comments)
+            .th__("Status Comment:")
+            .td().colspan(3).__(comments)
         );
       }
       // TODO: When there are no current status comments, show any tasklog comments from the last entry
       List<TaskPriority> taskPriorities = task.getPriorities();
-      for (int i_ = 0, size = taskPriorities.size(); i_ < size; i_++) {
-        int i = i_;
+      for (int iloop = 0, size = taskPriorities.size(); iloop < size; iloop++) {
+        final int i = iloop;
         TaskPriority taskPriority = taskPriorities.get(i);
         tbody.tr__any(tr -> {
           if (i == 0) {
@@ -268,6 +271,8 @@ public final class TaskHtmlRenderer {
   }
 
   /**
+   * Writes the part before the body.
+   *
    * @param style  ValueExpression that returns Object, only evaluated for BODY capture level
    *
    * @return  The tbody, which may be used to write additional content and must be passed onto
@@ -298,7 +303,7 @@ public final class TaskHtmlRenderer {
     BufferResult body = task.getBody();
     if (body.getLength() > 0) {
       tbody.tr__any(tr -> tr
-              .td().colspan(4).__(td -> {
+          .td().colspan(4).__(td -> {
             @SuppressWarnings("deprecation")
             Writer unsafe = td.getRawUnsafe();
             body.writeTo(new NodeBodyWriter(task, unsafe, context));
@@ -349,8 +354,8 @@ public final class TaskHtmlRenderer {
     int size = tasks.size();
     if (size > 0) {
       HtmlRenderer htmlRenderer = HtmlRenderer.getInstance(servletContext);
-      for (int i_ = 0; i_ < size; i_++) {
-        int i = i_;
+      for (int iloop = 0; iloop < size; iloop++) {
+        final int i = iloop;
         Task task = tasks.get(i);
         final Page taskPage = task.getPage();
         StatusResult status = statuses.get(task);
