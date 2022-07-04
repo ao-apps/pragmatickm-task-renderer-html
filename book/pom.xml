@@ -36,15 +36,15 @@ along with pragmatickm-task-renderer-html.  If not, see <https://www.gnu.org/lic
     <module.name>com.pragmatickm.task.renderer.html.book</module.name>
     <!-- These values are copied from the project being documented -->
     <documented.artifactId>pragmatickm-task-renderer-html</documented.artifactId>
-    <documented.name>PragmaticKM Task Renderer HTML²</documented.name>
+    <documented.name>PragmaticKM Task Renderer HTML</documented.name>
     <documented.description>Tasks rendered as HTML in a Servlet environment.</documented.description>
 
     <description.html><![CDATA[Documentation for <a target="${javadoc.target}" href="${project.url}">${documented.name}</a> in <a target="${javadoc.target}" href="https://semanticcms.com/">SemanticCMS</a> format.]]></description.html>
   </properties>
 
-  <name>PragmaticKM Task Renderer HTML² Book</name>
+  <name>PragmaticKM Task Renderer HTML Book</name>
   <url>https://pragmatickm.com/task/renderer/html/</url>
-  <description>Documentation for PragmaticKM Task Renderer HTML² in SemanticCMS format.</description>
+  <description>Documentation for PragmaticKM Task Renderer HTML in SemanticCMS format.</description>
   <inceptionYear>2013</inceptionYear>
 
   <licenses>

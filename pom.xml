@@ -46,7 +46,7 @@ along with pragmatickm-task-renderer-html.  If not, see <https://www.gnu.org/lic
     <sonar.coverage.exclusions>**.*</sonar.coverage.exclusions>
   </properties>
 
-  <name>PragmaticKM Task Renderer HTML²</name>
+  <name>PragmaticKM Task Renderer HTML</name>
   <url>https://pragmatickm.com/task/renderer/html/</url>
   <description>Tasks rendered as HTML in a Servlet environment.</description>
   <inceptionYear>2013</inceptionYear>
