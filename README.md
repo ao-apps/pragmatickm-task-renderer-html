@@ -23,7 +23,7 @@
 * [Project Home](https://pragmatickm.com/task/renderer/html/)
 * [Changelog](https://pragmatickm.com/task/renderer/html/changelog)
 * [API Docs](https://pragmatickm.com/task/renderer/html/apidocs/)
-* [Maven Central Repository](https://central.sonatype.com/search?namespace=com.pragmatickm&q=a%3Apragmatickm-task-renderer-html)
+* [Maven Central Repository](https://central.sonatype.com/artifact/com.pragmatickm/pragmatickm-task-renderer-html)
 * [GitHub](https://github.com/ao-apps/pragmatickm-task-renderer-html)
 
 ## Contact Us
