@@ -38,7 +38,6 @@ def upstreamProjects = [
   '../../oss/net-types', // <groupId>com.aoapps</groupId><artifactId>ao-net-types</artifactId>
   '../../oss/servlet-subrequest', // <groupId>com.aoapps</groupId><artifactId>ao-servlet-subrequest</artifactId>
   '../../oss/servlet-util', // <groupId>com.aoapps</groupId><artifactId>ao-servlet-util</artifactId>
-  '../../oss/taglib', // <groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId>
   '../../oss/tempfiles', // <groupId>com.aoapps</groupId><artifactId>ao-tempfiles</artifactId>
   '../../oss/tempfiles-servlet', // <groupId>com.aoapps</groupId><artifactId>ao-tempfiles-servlet</artifactId>
   // No Jenkins: <groupId>javax.el</groupId><artifactId>javax.el-api</artifactId>

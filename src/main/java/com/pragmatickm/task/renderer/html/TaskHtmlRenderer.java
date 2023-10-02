@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-renderer-html - Tasks rendered as HTML in a Servlet environment.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -23,7 +23,7 @@
 
 package com.pragmatickm.task.renderer.html;
 
-import static com.aoapps.taglib.AttributeUtils.resolveValue;
+import static com.aoapps.servlet.el.ElUtils.resolveValue;
 
 import com.aoapps.collections.AoCollections;
 import com.aoapps.hodgepodge.schedule.Recurring;
