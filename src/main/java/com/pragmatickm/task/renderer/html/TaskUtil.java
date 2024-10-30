@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-renderer-html - Tasks rendered as HTML in a Servlet environment.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -188,20 +188,18 @@ public final class TaskUtil {
   }
 
   /**
-   * <p>
    * Gets a human-readable description of the task status as well as an associated class.
    * The status of a task, without any specific qualifying date, is:
-   * </p>
-   * <p>
-   * For non-scheduled tasks (with no "on" date and no "recurring"), the status is:
-   * </p>
+   *
+   * <p>For non-scheduled tasks (with no "on" date and no "recurring"), the status is:</p>
+   *
    * <ol>
    *   <li>The status of the most recent log entry with no "scheduledOn" value</li>
    *   <li>"New"</li>
    * </ol>
-   * <p>
-   * For a scheduled, non-recurring task, the status is:
-   * </p>
+   *
+   * <p>For a scheduled, non-recurring task, the status is:</p>
+   *
    * <ol>
    *   <li>If the status of the most recent log entry with a "scheduledOn" value equaling the task "on" date is of a "completedSchedule" type - use the status.</li>
    *   <li>If in the past, "Late YYYY-MM-DD"</li>
@@ -209,18 +207,17 @@ public final class TaskUtil {
    *   <li>If there is a status of the most recent log entry with a "scheduledOn" value equaling the task "on" date - use the status.</li>
    *   <li>Is in the future, "Waiting until YYYY-MM-DD"</li>
    * </ol>
-   * <p>
-   * For a recurring task, the status is:
-   * </p>
+   *
+   * <p>For a recurring task, the status is:</p>
+   *
    * <ol>
    *   <li>Find the first incomplete scheduledOn date (based on most recent log entries per scheduled date, in time order</li>
    *   <li>If the first incomplete is in the past, "Late YYYY-MM-DD"</li>
    *   <li>If the first incomplete is today, "Due Today"</li>
    *   <li>If the first incomplete is in the future, "Waiting until YYYY-MM-DD"</li>
    * </ol>
-   * <p>
-   * Status only available once frozen.
-   * </p>
+   *
+   * <p>Status only available once frozen.</p>
    */
   public static StatusResult getStatus(
       ServletContext servletContext,
