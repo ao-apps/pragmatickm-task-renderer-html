@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-renderer-html - Tasks rendered as HTML in a Servlet environment.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -155,14 +155,14 @@ public final class TaskUtil {
   public static TaskLog.Entry getMostRecentEntry(TaskLog taskLog, String statuses) throws IOException {
     String[] trimmed;
     int size;
-      {
-        List<String> split = Strings.split(statuses, ','); // Split on comma only, because of "Nothing To Do" status having spaces
-        size = split.size();
-        trimmed = new String[size];
-        for (int i = 0; i < size; i++) {
-          trimmed[i] = split.get(i).trim();
-        }
+    {
+      List<String> split = Strings.split(statuses, ','); // Split on comma only, because of "Nothing To Do" status having spaces
+      size = split.size();
+      trimmed = new String[size];
+      for (int i = 0; i < size; i++) {
+        trimmed[i] = split.get(i).trim();
       }
+    }
     List<TaskLog.Entry> entries = taskLog.getEntries();
     for (int i = entries.size() - 1; i >= 0; i--) {
       TaskLog.Entry entry = entries.get(i);
@@ -681,25 +681,25 @@ public final class TaskUtil {
             //System.err.println("notCachedSize = " + notCachedSize + ", doing concurrent getStatus");
             // Concurrent implementation
             List<Callable<StatusResult>> concurrentTasks = new ArrayList<>(notCachedSize);
-              {
-                final HttpServletRequest threadSafeReq = new UnmodifiableCopyHttpServletRequest(request);
-                final HttpServletResponse threadSafeResp = new UnmodifiableCopyHttpServletResponse(response);
-                final TempFileContext tempFileContext = TempFileContextEE.get(request);
-                for (final Task task : notCached) {
-                  concurrentTasks.add((Callable<StatusResult>) () -> {
-                    HttpServletRequest subrequest = new HttpServletSubRequest(threadSafeReq);
-                    HttpServletResponse subresponse = new HttpServletSubResponse(threadSafeResp, tempFileContext);
-                    return getStatus(
-                        servletContext,
-                        subrequest,
-                        subresponse,
-                        task,
-                        cache,
-                        statusCache
-                    );
-                  });
-                }
+            {
+              final HttpServletRequest threadSafeReq = new UnmodifiableCopyHttpServletRequest(request);
+              final HttpServletResponse threadSafeResp = new UnmodifiableCopyHttpServletResponse(response);
+              final TempFileContext tempFileContext = TempFileContextEE.get(request);
+              for (final Task task : notCached) {
+                concurrentTasks.add((Callable<StatusResult>) () -> {
+                  HttpServletRequest subrequest = new HttpServletSubRequest(threadSafeReq);
+                  HttpServletResponse subresponse = new HttpServletSubResponse(threadSafeResp, tempFileContext);
+                  return getStatus(
+                      servletContext,
+                      subrequest,
+                      subresponse,
+                      task,
+                      cache,
+                      statusCache
+                  );
+                });
               }
+            }
             List<StatusResult> concurrentResults;
             try {
               concurrentResults = SemanticCMS.getInstance(servletContext).getExecutors().getPerProcessor().callAll(concurrentTasks);
@@ -822,17 +822,17 @@ public final class TaskUtil {
       final Map<Task, List<Task>> results = AoCollections.newLinkedHashMap(size);
       // Build map from ElementRef back to Task, for fast lookup during traversal
       final Map<ElementRef, Task> tasksByElementRef = AoCollections.newHashMap(size);
-        {
-          List<Task> emptyList = Collections.emptyList();
-          for (Task task : tasks) {
-            if (results.put(task, emptyList) != null) {
-              throw new AssertionError();
-            }
-            if (tasksByElementRef.put(task.getElementRef(), task) != null) {
-              throw new AssertionError();
-            }
+      {
+        List<Task> emptyList = Collections.emptyList();
+        for (Task task : tasks) {
+          if (results.put(task, emptyList) != null) {
+            throw new AssertionError();
+          }
+          if (tasksByElementRef.put(task.getElementRef(), task) != null) {
+            throw new AssertionError();
           }
         }
+      }
       final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
       CapturePage.traversePagesDepthFirst(
           servletContext,

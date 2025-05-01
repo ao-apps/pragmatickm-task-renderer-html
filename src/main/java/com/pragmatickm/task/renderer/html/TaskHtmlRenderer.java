@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-renderer-html - Tasks rendered as HTML in a Servlet environment.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2025  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -171,47 +171,47 @@ public final class TaskHtmlRenderer {
       Cache cache = CacheFilter.getCache(request);
       // Capture the doBefores
       List<Task> doBefores;
-        {
-          // TODO: Concurrent getDoBefores?
-          Set<ElementRef> doBeforeRefs = task.getDoBefores();
-          int size = doBeforeRefs.size();
-          doBefores = new ArrayList<>(size);
-          // TODO: Concurrent capture here?
-          for (ElementRef doBefore : doBeforeRefs) {
-            Element elem = CapturePage.capturePage(
-                servletContext,
-                request,
-                response,
-                doBefore.getPageRef(),
-                CaptureLevel.META
-            ).getElementsById().get(doBefore.getId());
-            if (elem == null) {
-              throw new TaskException("Element not found: " + doBefore);
-            }
-            if (!(elem instanceof Task)) {
-              throw new TaskException("Element is not a Task: " + elem.getClass().getName());
-            }
-            if (elem.getPage().getGeneratedIds().contains(elem.getId())) {
-              throw new TaskException("Not allowed to reference task by generated id, set an explicit id on the task: " + elem);
-            }
-            doBefores.add((Task) elem);
+      {
+        // TODO: Concurrent getDoBefores?
+        Set<ElementRef> doBeforeRefs = task.getDoBefores();
+        int size = doBeforeRefs.size();
+        doBefores = new ArrayList<>(size);
+        // TODO: Concurrent capture here?
+        for (ElementRef doBefore : doBeforeRefs) {
+          Element elem = CapturePage.capturePage(
+              servletContext,
+              request,
+              response,
+              doBefore.getPageRef(),
+              CaptureLevel.META
+          ).getElementsById().get(doBefore.getId());
+          if (elem == null) {
+            throw new TaskException("Element not found: " + doBefore);
           }
+          if (!(elem instanceof Task)) {
+            throw new TaskException("Element is not a Task: " + elem.getClass().getName());
+          }
+          if (elem.getPage().getGeneratedIds().contains(elem.getId())) {
+            throw new TaskException("Not allowed to reference task by generated id, set an explicit id on the task: " + elem);
+          }
+          doBefores.add((Task) elem);
         }
+      }
       // Find the doAfters
       List<Task> doAfters = TaskUtil.getDoAfters(servletContext, request, response, task);
       // Lookup all the statuses at once
       Map<Task, StatusResult> statuses;
-        {
-          Set<Task> allTasks = AoCollections.newHashSet(
-              doBefores.size()
-                  + 1 // this task
-                  + doAfters.size()
-          );
-          allTasks.addAll(doBefores);
-          allTasks.add(task);
-          allTasks.addAll(doAfters);
-          statuses = TaskUtil.getMultipleStatuses(servletContext, request, response, allTasks, cache);
-        }
+      {
+        Set<Task> allTasks = AoCollections.newHashSet(
+            doBefores.size()
+                + 1 // this task
+                + doAfters.size()
+        );
+        allTasks.addAll(doBefores);
+        allTasks.add(task);
+        allTasks.addAll(doAfters);
+        statuses = TaskUtil.getMultipleStatuses(servletContext, request, response, allTasks, cache);
+      }
       // Write the task itself to this page
       final PageIndex pageIndex = PageIndex.getCurrentPageIndex(request);
       AnyTBODY_c<?, ? extends AnyTABLE_c<?, ?, ?>, ?> tbody = palpable.table()
