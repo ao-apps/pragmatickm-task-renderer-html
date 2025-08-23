@@ -491,10 +491,10 @@ public final class TaskUtil {
           if (entry.getStatus().isCompletedSchedule()) {
             Calendar completedOn = entry.getOn();
             SortedSet<? extends Calendar> scheduledOns = entry.getScheduledOns();
-            //String checkResult = recurring.checkScheduleFrom(completedOn, "relative");
-            //if (checkResult != null) {
-            //  throw new TaskException(checkResult);
-            //}
+            // String checkResult = recurring.checkScheduleFrom(completedOn, "relative");
+            // if (checkResult != null) {
+            //   throw new TaskException(checkResult);
+            // }
             Iterator<Calendar> recurringIter = recurring.getScheduleIterator(completedOn);
             // Find the first date that is after both the completedOn and scheduledOn
             do {
@@ -678,7 +678,7 @@ public final class TaskUtil {
               notCachedSize > 1
                   && ConcurrencyCoordinator.useConcurrentSubrequests(request)
           ) {
-            //System.err.println("notCachedSize = " + notCachedSize + ", doing concurrent getStatus");
+            // System.err.println("notCachedSize = " + notCachedSize + ", doing concurrent getStatus");
             // Concurrent implementation
             List<Callable<StatusResult>> concurrentTasks = new ArrayList<>(notCachedSize);
             {
