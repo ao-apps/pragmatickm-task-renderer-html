@@ -43,8 +43,8 @@ def upstreamProjects = [
   // No Jenkins: <groupId>javax.el</groupId><artifactId>javax.el-api</artifactId>
   // No Jenkins: <groupId>javax.servlet</groupId><artifactId>javax.servlet-api</artifactId>
   'model', // <groupId>com.pragmatickm</groupId><artifactId>pragmatickm-task-model</artifactId>
-  '../../semanticcms-1.x/core/model', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-model</artifactId>
-  '../../semanticcms-1.x/core/servlet', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-servlet</artifactId>
+  '../../semanticcms-2.x/core/model', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-model</artifactId>
+  '../../semanticcms-2.x/core/servlet', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-servlet</artifactId>
 
   // Runtime Direct
   '../../oss/style-javaee', // <groupId>com.aoapps</groupId><artifactId>ao-style</artifactId>
