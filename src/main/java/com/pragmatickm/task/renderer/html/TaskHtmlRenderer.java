@@ -132,7 +132,7 @@ public final class TaskHtmlRenderer {
    * Writes the part before the body.
    *
    * @return  When captureLevel == BODY, the tbody, which may be used to write additional content and must be passed onto
-   *          {@link #writeAfterBody(com.pragmatickm.task.model.Task, com.aoapps.html.any.AnyTBODY_c, com.semanticcms.core.model.ElementContext)}.
+   *          {@link TaskHtmlRenderer#writeAfterBody(com.pragmatickm.task.model.Task, com.aoapps.html.any.AnyTBODY_c, com.semanticcms.core.model.ElementContext)}.
    *          For all other capture levels returns {@code null}.
    */
   public static AnyTBODY_c<?, ? extends AnyTABLE_c<?, ?, ?>, ?> writeBeforeBody(
@@ -276,7 +276,7 @@ public final class TaskHtmlRenderer {
    * @param style  ValueExpression that returns Object, only evaluated for BODY capture level
    *
    * @return  The tbody, which may be used to write additional content and must be passed onto
-   *          {@link #writeAfterBody(com.pragmatickm.task.model.Task, com.aoapps.html.any.AnyTBODY_c, com.semanticcms.core.model.ElementContext)}.
+   *          {@link TaskHtmlRenderer#writeAfterBody(com.pragmatickm.task.model.Task, com.aoapps.html.any.AnyTBODY_c, com.semanticcms.core.model.ElementContext)}.
    */
   public static AnyTBODY_c<?, ? extends AnyTABLE_c<?, ?, ?>, ?> writeBeforeBody(
       ServletContext servletContext,
