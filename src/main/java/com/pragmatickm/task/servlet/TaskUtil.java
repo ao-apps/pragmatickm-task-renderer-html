@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-servlet - Tasks nested within SemanticCMS pages and elements in a Servlet environment.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -676,15 +676,7 @@ public final class TaskUtil {
               throw new ServletException(e);
             } catch (ExecutionException e) {
               // Maintain expected exception types while not losing stack trace
-              // TODO: Once pragmatickm-task-model is SNAPSHOT again: ExecutionExceptions.wrapAndThrow(e, TaskException.class, TaskException::new);
-              // TODO: Compatibility implementation using initCause:
-              ExecutionExceptions.wrapAndThrow(e, TaskException.class,
-                  (message, ee) -> {
-                    TaskException te = new TaskException(message);
-                    te.initCause(ee);
-                    return te;
-                  }
-              );
+              ExecutionExceptions.wrapAndThrow(e, TaskException.class, TaskException::new);
               ExecutionExceptions.wrapAndThrow(e, IOException.class, IOException::new);
               throw new ServletException(e);
             }
