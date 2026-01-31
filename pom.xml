@@ -431,7 +431,7 @@ along with pragmatickm-task-renderer-html.  If not, see <https://www.gnu.org/lic
       </dependency>
       <!-- Runtime Direct -->
       <dependency>
-        <groupId>com.aoapps</groupId><artifactId>ao-style</artifactId><version>3.0.0-SNAPSHOT<!-- ${POST-SNAPSHOT} --></version>
+        <groupId>com.aoapps</groupId><artifactId>ao-style</artifactId><version>3.0.0${POST-SNAPSHOT}</version>
       </dependency>
       <!-- Imports -->
       <dependency>
