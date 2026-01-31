@@ -676,15 +676,7 @@ public final class TaskUtil {
               throw new ServletException(e);
             } catch (ExecutionException e) {
               // Maintain expected exception types while not losing stack trace
-              // TODO: Once pragmatickm-task-model is SNAPSHOT again: ExecutionExceptions.wrapAndThrow(e, TaskException.class, TaskException::new);
-              // TODO: Compatibility implementation using initCause:
-              ExecutionExceptions.wrapAndThrow(e, TaskException.class,
-                  (message, ee) -> {
-                    TaskException te = new TaskException(message);
-                    te.initCause(ee);
-                    return te;
-                  }
-              );
+              ExecutionExceptions.wrapAndThrow(e, TaskException.class, TaskException::new);
               ExecutionExceptions.wrapAndThrow(e, IOException.class, IOException::new);
               throw new ServletException(e);
             }
