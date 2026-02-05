@@ -27,7 +27,6 @@ import static com.aoapps.servlet.http.Cookies.addCookie;
 import static com.aoapps.servlet.http.Cookies.getCookie;
 import static com.aoapps.servlet.http.Cookies.removeCookie;
 
-import com.pragmatickm.task.model.User;
 import com.semanticcms.core.servlet.Headers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,21 +45,11 @@ public final class Cookies {
     user
   }
 
-  public static User getUser(HttpServletRequest request) {
-    String cookie = getCookie(request, CookieName.user.name());
-    if (cookie == null) {
-      return null;
-    } else {
-      try {
-        return User.valueOf(cookie);
-      } catch (IllegalArgumentException e) {
-        // Ignore unexpected cookie values
-        return null;
-      }
-    }
+  public static String getUser(HttpServletRequest request) {
+    return getCookie(request, CookieName.user.name());
   }
 
-  public static void setUser(HttpServletRequest request, HttpServletResponse response, User user) {
+  public static void setUser(HttpServletRequest request, HttpServletResponse response, String user) {
     // Do not actually set any cookies while exporting
     if (!Headers.isExporting(request)) {
       if (user == null) {
@@ -76,7 +65,7 @@ public final class Cookies {
             request,
             response,
             CookieName.user.name(),
-            user.name(),
+            user,
             "The current user name",
             365 * 24 & 60 * 60,
             false,

@@ -42,7 +42,6 @@ import com.pragmatickm.task.model.Task;
 import com.pragmatickm.task.model.TaskAssignment;
 import com.pragmatickm.task.model.TaskException;
 import com.pragmatickm.task.model.TaskLog;
-import com.pragmatickm.task.model.User;
 import com.pragmatickm.task.servlet.impl.TaskImpl;
 import com.semanticcms.core.model.Element;
 import com.semanticcms.core.model.ElementRef;
@@ -65,14 +64,13 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -846,14 +844,14 @@ public final class TaskUtil {
     }
   }
 
-  public static User getUser(
+  public static String getUser(
       HttpServletRequest request,
       HttpServletResponse response
   ) {
     String userParam = request.getParameter("user");
     if (userParam != null) {
       // Find and set cookie
-      User user = userParam.isEmpty() ? null : User.valueOf(userParam);
+      String user = userParam.isEmpty() ? null : userParam;
       Cookies.setUser(request, response, user);
       return user;
     } else {
@@ -862,8 +860,26 @@ public final class TaskUtil {
     }
   }
 
-  public static Set<User> getAllUsers() {
-    return EnumSet.allOf(User.class);
+  private static final Comparator<String> UNASSIGNED_FIRST = (String user1, String user2) -> {
+    boolean unassigned1 = Task.UNASSIGNED.equals(user1);
+    boolean unassigned2 = Task.UNASSIGNED.equals(user2);
+    if (unassigned1) {
+      return unassigned2 ? 0 : -1;
+    } else {
+      return unassigned2 ? 1 : user1.compareTo(user2);
+    }
+  };
+
+  public static SortedSet<String> getAllUsers(SortedSet<String> allUsers, Iterable<? extends Task> tasks) {
+    if (allUsers == null) {
+      allUsers = new TreeSet<>(UNASSIGNED_FIRST);
+    }
+    for (Task task : tasks) {
+      for (TaskAssignment assignment : task.getAssignedTo()) {
+        allUsers.add(assignment.getWho());
+      }
+    }
+    return allUsers;
   }
 
   private static Priority getEffectivePriority(
@@ -1076,8 +1092,8 @@ public final class TaskUtil {
     return pageUserCache;
   }
 
-  static class PageUserKey extends Tuple2<Page, User> {
-    PageUserKey(Page page, User user) {
+  static class PageUserKey extends Tuple2<Page, String> {
+    PageUserKey(Page page, String user) {
       super(page, user);
     }
   }
@@ -1089,7 +1105,7 @@ public final class TaskUtil {
       HttpServletRequest request,
       HttpServletResponse response,
       Page rootPage,
-      final User user
+      final String user
   ) throws IOException, ServletException {
     PageUserKey cacheKey = new PageUserKey(rootPage, user);
     Map<PageUserKey, List<Task>> cache = getPageUserCache(CacheFilter.getCache(request), ALL_TASKS_CACHE_KEY);
@@ -1134,7 +1150,7 @@ public final class TaskUtil {
       final HttpServletRequest request,
       final HttpServletResponse response,
       Page page,
-      final User user
+      final String user
   ) throws ServletException, IOException {
     PageUserKey cacheKey = new PageUserKey(page, user);
     final Cache cache = CacheFilter.getCache(request);
@@ -1260,7 +1276,7 @@ public final class TaskUtil {
       final HttpServletRequest request,
       final HttpServletResponse response,
       Page rootPage,
-      final User user
+      final String user
   ) throws IOException, ServletException {
     PageUserKey cacheKey = new PageUserKey(rootPage, user);
     final Cache cache = CacheFilter.getCache(request);
@@ -1343,7 +1359,7 @@ public final class TaskUtil {
       final HttpServletRequest request,
       final HttpServletResponse response,
       Page rootPage,
-      final User user
+      final String user
   ) throws IOException, ServletException {
     PageUserKey cacheKey = new PageUserKey(rootPage, user);
     final Cache cache = CacheFilter.getCache(request);
@@ -1427,7 +1443,7 @@ public final class TaskUtil {
       final HttpServletRequest request,
       final HttpServletResponse response,
       Page rootPage,
-      final User user
+      final String user
   ) throws IOException, ServletException {
     PageUserKey cacheKey = new PageUserKey(rootPage, user);
     final Cache cache = CacheFilter.getCache(request);
