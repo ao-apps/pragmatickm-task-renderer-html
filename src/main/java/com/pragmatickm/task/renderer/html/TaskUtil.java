@@ -29,8 +29,6 @@ import com.aoapps.hodgepodge.util.Tuple2;
 import com.aoapps.lang.Strings;
 import com.aoapps.lang.concurrent.ExecutionExceptions;
 import com.aoapps.lang.exception.WrappedException;
-import com.aoapps.lang.util.CalendarUtils;
-import com.aoapps.lang.util.UnmodifiableCalendar;
 import com.aoapps.net.DomainName;
 import com.aoapps.net.Path;
 import com.aoapps.servlet.subrequest.HttpServletSubRequest;
@@ -64,12 +62,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -277,7 +274,7 @@ public final class TaskUtil {
       Cache cache,
       Map<Task, StatusResult> statusCache
   ) throws TaskException, ServletException, IOException {
-    UnmodifiableCalendar on = task.getOn();
+    LocalDate on = task.getOn();
     Recurring recurring = task.getRecurring();
     boolean relative = task.getRelative();
     // Check if all dependencies are completed
@@ -317,8 +314,7 @@ public final class TaskUtil {
         break;
       }
     }
-    final GregorianCalendar today = CalendarUtils.getToday();
-    final long todayMillis = today.getTimeInMillis();
+    final LocalDate today = LocalDate.now();
     TaskLog taskLog = task.getTaskLog();
     if (on == null && recurring == null) {
       // Non-scheduled task
@@ -327,13 +323,13 @@ public final class TaskUtil {
         TaskLog.Status entryStatus = entry.getStatus();
         if (entryStatus == TaskLog.Status.PROGRESS) {
           // If marked with "Progress" on or after today, will be moved to the future list
-          long entryOnMillis = entry.getOn().getTimeInMillis();
-          boolean future = entryOnMillis >= todayMillis;
+          LocalDate entryOn = entry.getOn();
+          boolean future = entryOn.compareTo(today) >= 0;
           return new StatusResult(
               StatusResult.Style.getStyle(TaskLog.Status.PROGRESS),
-              entryOnMillis == todayMillis
+              entryOn.equals(today)
                   ? "Progress Today"
-                  : ("Progress on " + CalendarUtils.formatDate(entry.getOn())),
+                  : ("Progress on " + entry.getOn()),
               entry.getComments(),
               false,
               !future && allDoBeforesCompleted,
@@ -386,14 +382,14 @@ public final class TaskUtil {
               on
           );
         } else if (entryStatus == TaskLog.Status.PROGRESS) {
-          long entryOnMillis = entry.getOn().getTimeInMillis();
-          if (entryOnMillis >= todayMillis) {
+          LocalDate entryOn = entry.getOn();
+          if (entryOn.compareTo(today) >= 0) {
             // If marked with "Progress" on or after today, will be moved to the future list
             return new StatusResult(
                 StatusResult.Style.getStyle(TaskLog.Status.PROGRESS),
-                entryOnMillis == todayMillis
+                entryOn.equals(today)
                     ? "Progress Today"
-                    : ("Progress on " + CalendarUtils.formatDate(entry.getOn())),
+                    : ("Progress on " + entry.getOn()),
                 entry.getComments(),
                 false,
                 false,
@@ -404,11 +400,11 @@ public final class TaskUtil {
         }
       }
       // Past
-      if (on.before(today)) {
+      if (on.isBefore(today)) {
         if (allDoBeforesCompleted) {
           return new StatusResult(
               StatusResult.Style.LATE,
-              "Late " + CalendarUtils.formatDate(on),
+              "Late " + on,
               entry != null ? entry.getComments() : null,
               false,
               true,
@@ -418,7 +414,7 @@ public final class TaskUtil {
         } else {
           return new StatusResult(
               StatusResult.Style.LATE_WAITING_DO_AFTER,
-              "Late " + CalendarUtils.formatDate(on) + " waiting for \"Do Before\"",
+              "Late " + on + " waiting for \"Do Before\"",
               entry != null ? entry.getComments() : null,
               false,
               false,
@@ -428,7 +424,7 @@ public final class TaskUtil {
         }
       }
       // Present
-      if (on.getTimeInMillis() == todayMillis) {
+      if (on.equals(today)) {
         if (allDoBeforesCompleted) {
           return new StatusResult(
               StatusResult.Style.DUE_TODAY,
@@ -464,7 +460,7 @@ public final class TaskUtil {
       }
       return new StatusResult(
           StatusResult.Style.IN_FUTURE,
-          "Waiting until " + CalendarUtils.formatDate(on),
+          "Waiting until " + on,
           null,
           false, // Was true, but if never done and waiting for future, it isn't completed
           false,
@@ -473,7 +469,7 @@ public final class TaskUtil {
       );
     } else {
       // Recurring task (possibly with null "on" date)
-      final Calendar firstIncomplete;
+      final LocalDate firstIncomplete;
       if (relative) {
         // TODO: When "on" is set today because new task never completed, the status
         //       should become the highest priority, and the assignments should be to
@@ -481,31 +477,31 @@ public final class TaskUtil {
         //       tasks are remaining unfinished due to perpetual "Low" initial priority.
 
         // Will use "on" or today if no completed tasklog entry
-        Calendar recurringFrom = (on != null) ? on : today;
+        LocalDate recurringFrom = (on != null) ? on : today;
         // Schedule from most recent completed tasklog entry
         List<TaskLog.Entry> entries = taskLog.getEntries();
         for (int i = entries.size() - 1; i >= 0; i--) {
           TaskLog.Entry entry = entries.get(i);
           if (entry.getStatus().isCompletedSchedule()) {
-            Calendar completedOn = entry.getOn();
-            SortedSet<? extends Calendar> scheduledOns = entry.getScheduledOns();
+            LocalDate completedOn = entry.getOn();
+            SortedSet<LocalDate> scheduledOns = entry.getScheduledOns();
             // String checkResult = recurring.checkScheduleFrom(completedOn, "relative");
             // if (checkResult != null) {
             //   throw new TaskException(checkResult);
             // }
-            Iterator<Calendar> recurringIter = recurring.getScheduleIterator(completedOn);
+            Iterator<LocalDate> recurringIter = recurring.getScheduleIterator(completedOn);
             // Find the first date that is after both the completedOn and scheduledOn
             do {
               recurringFrom = recurringIter.next();
             } while (
-                recurringFrom.getTimeInMillis() <= completedOn.getTimeInMillis()
-                    || (!scheduledOns.isEmpty() && recurringFrom.getTimeInMillis() <= scheduledOns.last().getTimeInMillis())
+                recurringFrom.compareTo(completedOn) <= 0
+                    || (!scheduledOns.isEmpty() && recurringFrom.compareTo(scheduledOns.last()) <= 0)
             );
             break;
           }
         }
         // If "on" is after the determined recurringFrom, use "on"
-        if (on != null && on.getTimeInMillis() > recurringFrom.getTimeInMillis()) {
+        if (on != null && on.compareTo(recurringFrom) > 0) {
           recurringFrom = on;
         }
         firstIncomplete = recurringFrom;
@@ -515,19 +511,19 @@ public final class TaskUtil {
         }
         firstIncomplete = taskLog.getFirstIncompleteScheduledOn(on, recurring);
       }
-      if (firstIncomplete.before(today)) {
+      if (firstIncomplete.isBefore(today)) {
         TaskLog.Entry entry = taskLog.getMostRecentEntry(firstIncomplete);
         if (entry != null) {
           TaskLog.Status entryStatus = entry.getStatus();
           if (entryStatus == TaskLog.Status.PROGRESS) {
-            long entryOnMillis = entry.getOn().getTimeInMillis();
-            if (entryOnMillis >= todayMillis) {
+            LocalDate entryOn = entry.getOn();
+            if (entryOn.compareTo(today) >= 0) {
               // If marked with "Progress" on or after today, will be moved to the future list
               return new StatusResult(
                   StatusResult.Style.getStyle(TaskLog.Status.PROGRESS),
-                  entryOnMillis == todayMillis
+                  entryOn.equals(today)
                       ? "Progress Today"
-                      : ("Progress on " + CalendarUtils.formatDate(entry.getOn())),
+                      : ("Progress on " + entry.getOn()),
                   entry.getComments(),
                   false,
                   false,
@@ -540,7 +536,7 @@ public final class TaskUtil {
         if (allDoBeforesCompleted) {
           return new StatusResult(
               StatusResult.Style.LATE,
-              "Late " + CalendarUtils.formatDate(firstIncomplete),
+              "Late " + firstIncomplete,
               entry != null ? entry.getComments() : null,
               false,
               true,
@@ -550,7 +546,7 @@ public final class TaskUtil {
         } else {
           return new StatusResult(
               StatusResult.Style.LATE_WAITING_DO_AFTER,
-              "Late " + CalendarUtils.formatDate(firstIncomplete) + " waiting for \"Do Before\"",
+              "Late " + firstIncomplete + " waiting for \"Do Before\"",
               entry != null ? entry.getComments() : null,
               false,
               false,
@@ -559,19 +555,19 @@ public final class TaskUtil {
           );
         }
       }
-      if (firstIncomplete.getTimeInMillis() == todayMillis) {
+      if (firstIncomplete.equals(today)) {
         TaskLog.Entry entry = taskLog.getMostRecentEntry(firstIncomplete);
         if (entry != null) {
           TaskLog.Status entryStatus = entry.getStatus();
           if (entryStatus == TaskLog.Status.PROGRESS) {
-            long entryOnMillis = entry.getOn().getTimeInMillis();
-            if (entryOnMillis >= todayMillis) {
+            LocalDate entryOn = entry.getOn();
+            if (entryOn.compareTo(today) >= 0) {
               // If marked with "Progress" on or after today, will be moved to the future list
               return new StatusResult(
                   StatusResult.Style.getStyle(TaskLog.Status.PROGRESS),
-                  entryOnMillis == todayMillis
+                  entryOn.equals(today)
                       ? "Progress Today"
-                      : ("Progress on " + CalendarUtils.formatDate(entry.getOn())),
+                      : ("Progress on " + entry.getOn()),
                   entry.getComments(),
                   false,
                   false,
@@ -605,7 +601,7 @@ public final class TaskUtil {
       }
       return new StatusResult(
           StatusResult.Style.IN_FUTURE,
-          "Waiting until " + CalendarUtils.formatDate(firstIncomplete),
+          "Waiting until " + firstIncomplete,
           null,
           true,
           false,
@@ -923,7 +919,7 @@ public final class TaskUtil {
       HttpServletResponse response,
       Cache cache,
       Map<Task, StatusResult> statusCache,
-      long now,
+      LocalDate today,
       Task task,
       StatusResult status,
       Map<Task, List<Task>> doAftersByTask,
@@ -934,7 +930,7 @@ public final class TaskUtil {
       return cached;
     }
     // Find the maximum priority of this task and all that will be done after it
-    Priority effective = TaskHtmlRenderer.getPriorityForStatus(now, task, status);
+    Priority effective = TaskHtmlRenderer.getPriorityForStatus(today, task, status);
     if (effective != Priority.MAX_PRIORITY) {
       List<Task> doAfters = doAftersByTask.get(task);
       if (doAfters != null) {
@@ -958,7 +954,7 @@ public final class TaskUtil {
                 response,
                 cache,
                 statusCache,
-                now,
+                today,
                 doAfter,
                 doAfterStatus,
                 doAftersByTask,
@@ -986,7 +982,7 @@ public final class TaskUtil {
       Collection<? extends Task> tasks,
       final boolean dateFirst
   ) throws TaskException, ServletException, IOException {
-    final long now = System.currentTimeMillis();
+    final LocalDate today = LocalDate.now();
     final Cache cache = CacheFilter.getCache(request);
     final Map<Task, StatusResult> statusCache = getStatusCache(cache);
     // Priority inheritance
@@ -1040,8 +1036,8 @@ public final class TaskUtil {
             // Sort by scheduled or unscheduled
             StatusResult status1 = getStatus(servletContext, request, response, t1, cache, statusCache);
             StatusResult status2 = getStatus(servletContext, request, response, t2, cache, statusCache);
-            Calendar date1 = status1.getDate();
-            Calendar date2 = status2.getDate();
+            LocalDate date1 = status1.getDate();
+            LocalDate date2 = status2.getDate();
             int diff = Boolean.compare(date2 != null, date1 != null);
             if (diff != 0) {
               return diff;
@@ -1074,7 +1070,7 @@ public final class TaskUtil {
                   response,
                   cache,
                   statusCache,
-                  now,
+                  today,
                   t1,
                   getStatus(servletContext, request, response, t1, cache, statusCache),
                   doAftersByTask,
@@ -1086,7 +1082,7 @@ public final class TaskUtil {
                   response,
                   cache,
                   statusCache,
-                  now,
+                  today,
                   t2,
                   getStatus(servletContext, request, response, t2, cache, statusCache),
                   doAftersByTask,
@@ -1194,7 +1190,7 @@ public final class TaskUtil {
     Map<PageUserKey, Boolean> hasAssignedTaskCache = getPageUserCache(cache, HAS_ASSIGNED_TASK_CACHE_KEY);
     Boolean result = hasAssignedTaskCache.get(cacheKey);
     if (result == null) {
-      final long now = System.currentTimeMillis();
+      final LocalDate today = LocalDate.now();
       final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
       result = CapturePage.traversePagesAnyOrder(
           servletContext,
@@ -1226,7 +1222,7 @@ public final class TaskUtil {
                         !status.isCompletedSchedule()
                             && status.isReadySchedule()
                     ) {
-                      priority = TaskHtmlRenderer.getPriorityForStatus(now, task, status);
+                      priority = TaskHtmlRenderer.getPriorityForStatus(today, task, status);
                       if (priority != Priority.FUTURE) {
                         if (
                             status.getDate() != null
@@ -1234,9 +1230,8 @@ public final class TaskUtil {
                                 && assignedTo.getAfter().getCount() > 0
                         ) {
                           // assignedTo "after"
-                          Calendar effectiveDate = UnmodifiableCalendar.unwrapClone(status.getDate());
-                          assignedTo.getAfter().offset(effectiveDate);
-                          if (now >= effectiveDate.getTimeInMillis()) {
+                          LocalDate effectiveDate = assignedTo.getAfter().plus(status.getDate());
+                          if (today.compareTo(effectiveDate) >= 0) {
                             return true;
                           }
                         } else {
@@ -1252,7 +1247,7 @@ public final class TaskUtil {
                             && !status.isFutureSchedule()
                     ) {
                       if (priority == null) {
-                        priority = TaskHtmlRenderer.getPriorityForStatus(now, task, status);
+                        priority = TaskHtmlRenderer.getPriorityForStatus(today, task, status);
                       }
                       if (priority != Priority.FUTURE) {
                         if (
@@ -1261,9 +1256,8 @@ public final class TaskUtil {
                                 && assignedTo.getAfter().getCount() > 0
                         ) {
                           // assignedTo "after"
-                          Calendar effectiveDate = UnmodifiableCalendar.unwrapClone(status.getDate());
-                          assignedTo.getAfter().offset(effectiveDate);
-                          if (now >= effectiveDate.getTimeInMillis()) {
+                          LocalDate effectiveDate = assignedTo.getAfter().plus(status.getDate());
+                          if (today.compareTo(effectiveDate) >= 0) {
                             return true;
                           }
                         } else {
@@ -1281,7 +1275,7 @@ public final class TaskUtil {
                       boolean future = status.isFutureSchedule();
                       if (!future) {
                         if (priority == null) {
-                          priority = TaskHtmlRenderer.getPriorityForStatus(now, task, status);
+                          priority = TaskHtmlRenderer.getPriorityForStatus(today, task, status);
                         }
                         future = priority == Priority.FUTURE;
                       }
@@ -1321,7 +1315,7 @@ public final class TaskUtil {
     Map<PageUserKey, List<Task>> getReadyTasksCache = getPageUserCache(cache, GET_READY_TASKS_CACHE_KEY);
     List<Task> results = getReadyTasksCache.get(cacheKey);
     if (results == null) {
-      final long now = System.currentTimeMillis();
+      final LocalDate today = LocalDate.now();
       final List<Task> readyTasks = new ArrayList<>();
       final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
       CapturePage.traversePagesDepthFirst(
@@ -1352,7 +1346,7 @@ public final class TaskUtil {
                         !status.isCompletedSchedule()
                             && status.isReadySchedule()
                     ) {
-                      Priority priority = TaskHtmlRenderer.getPriorityForStatus(now, task, status);
+                      Priority priority = TaskHtmlRenderer.getPriorityForStatus(today, task, status);
                       if (priority != Priority.FUTURE) {
                         if (
                             status.getDate() != null
@@ -1360,9 +1354,8 @@ public final class TaskUtil {
                                 && assignedTo.getAfter().getCount() > 0
                         ) {
                           // assignedTo "after"
-                          Calendar effectiveDate = UnmodifiableCalendar.unwrapClone(status.getDate());
-                          assignedTo.getAfter().offset(effectiveDate);
-                          if (now >= effectiveDate.getTimeInMillis()) {
+                          LocalDate effectiveDate = assignedTo.getAfter().plus(status.getDate());
+                          if (today.compareTo(effectiveDate) >= 0) {
                             readyTasks.add(task);
                           }
                         } else {
@@ -1405,7 +1398,7 @@ public final class TaskUtil {
     Map<PageUserKey, List<Task>> getBlockedTasksCache = getPageUserCache(cache, GET_BLOCKED_TASKS_CACHE_KEY);
     List<Task> results = getBlockedTasksCache.get(cacheKey);
     if (results == null) {
-      final long now = System.currentTimeMillis();
+      final LocalDate today = LocalDate.now();
       final List<Task> blockedTasks = new ArrayList<>();
       final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
       CapturePage.traversePagesDepthFirst(
@@ -1437,7 +1430,7 @@ public final class TaskUtil {
                             && !status.isReadySchedule()
                             && !status.isFutureSchedule()
                     ) {
-                      Priority priority = TaskHtmlRenderer.getPriorityForStatus(now, task, status);
+                      Priority priority = TaskHtmlRenderer.getPriorityForStatus(today, task, status);
                       if (priority != Priority.FUTURE) {
                         if (
                             status.getDate() != null
@@ -1445,9 +1438,8 @@ public final class TaskUtil {
                                 && assignedTo.getAfter().getCount() > 0
                         ) {
                           // assignedTo "after"
-                          Calendar effectiveDate = UnmodifiableCalendar.unwrapClone(status.getDate());
-                          assignedTo.getAfter().offset(effectiveDate);
-                          if (now >= effectiveDate.getTimeInMillis()) {
+                          LocalDate effectiveDate = assignedTo.getAfter().plus(status.getDate());
+                          if (today.compareTo(effectiveDate) >= 0) {
                             blockedTasks.add(task);
                           }
                         } else {
@@ -1490,7 +1482,7 @@ public final class TaskUtil {
     Map<PageUserKey, List<Task>> futureTasksCache = getPageUserCache(cache, FUTURE_TASKS_CACHE_KEY);
     List<Task> results = futureTasksCache.get(cacheKey);
     if (results == null) {
-      final long now = System.currentTimeMillis();
+      final LocalDate today = LocalDate.now();
       final List<Task> futureTasks = new ArrayList<>();
       final SemanticCMS semanticCms = SemanticCMS.getInstance(servletContext);
       CapturePage.traversePagesDepthFirst(
@@ -1525,7 +1517,7 @@ public final class TaskUtil {
                     );
                     boolean future = status.isFutureSchedule();
                     if (!future) {
-                      Priority priority = TaskHtmlRenderer.getPriorityForStatus(now, task, status);
+                      Priority priority = TaskHtmlRenderer.getPriorityForStatus(today, task, status);
                       future = priority == Priority.FUTURE;
                     }
                     if (future) {
