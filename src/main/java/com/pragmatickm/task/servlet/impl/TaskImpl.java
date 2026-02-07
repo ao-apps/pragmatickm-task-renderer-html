@@ -32,7 +32,6 @@ import com.aoapps.html.any.AnyTABLE_c;
 import com.aoapps.html.any.AnyTBODY_c;
 import com.aoapps.html.any.AnyUnion_TBODY_THEAD_TFOOT;
 import com.aoapps.io.buffer.BufferResult;
-import com.aoapps.lang.util.CalendarUtils;
 import com.aoapps.net.URIEncoder;
 import com.pragmatickm.task.model.Priority;
 import com.pragmatickm.task.model.Task;
@@ -61,8 +60,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -107,9 +106,9 @@ public final class TaskImpl {
     }
   }
 
-  private static void writeRow(String header, Calendar date, AnyUnion_TBODY_THEAD_TFOOT<?, ?> content) throws IOException {
+  private static void writeRow(String header, LocalDate date, AnyUnion_TBODY_THEAD_TFOOT<?, ?> content) throws IOException {
     if (date != null) {
-      writeRow(header, CalendarUtils.formatDate(date), content);
+      writeRow(header, date.toString(), content);
     }
   }
 
@@ -147,7 +146,7 @@ public final class TaskImpl {
     Recurring recurring = task.getRecurring();
     boolean relative = task.getRelative();
     if (recurring != null) {
-      Calendar on = task.getOn();
+      LocalDate on = task.getOn();
       if (on == null) {
         if (!relative) {
           throw new ServletException("Task \"on\" attribute required for non-relative recurring tasks.");
@@ -229,8 +228,8 @@ public final class TaskImpl {
               )
           )
           .tbody_c();
-      final long now = System.currentTimeMillis();
-      writeTasks(servletContext, request, response, tbody, currentPage, now, doBefores, statuses, "Do Before:");
+      final LocalDate today = LocalDate.now();
+      writeTasks(servletContext, request, response, tbody, currentPage, today, doBefores, statuses, "Do Before:");
       StatusResult status = statuses.get(task);
       tbody.tr__any(tr -> tr
           .th__("Status:")
@@ -260,7 +259,7 @@ public final class TaskImpl {
       writeRow("Assigned To:", task.getAssignedTo(), tbody);
       writeRow("Pay:", task.getPay(), tbody);
       writeRow("Cost:", task.getCost(), tbody);
-      writeTasks(servletContext, request, response, tbody, currentPage, now, doAfters, statuses, "Do After:");
+      writeTasks(servletContext, request, response, tbody, currentPage, today, doAfters, statuses, "Do After:");
       return tbody;
     } else {
       return null;
@@ -326,9 +325,9 @@ public final class TaskImpl {
     return new PageRef(pageRef.getBook(), xmlFilePath);
   }
 
-  public static Priority getPriorityForStatus(long now, Task task, StatusResult status) {
+  public static Priority getPriorityForStatus(LocalDate today, Task task, StatusResult status) {
     if (status.getDate() != null) {
-      return task.getPriority(status.getDate(), now);
+      return task.getPriority(status.getDate(), today);
     } else {
       return task.getZeroDayPriority();
     }
@@ -340,7 +339,7 @@ public final class TaskImpl {
       HttpServletResponse response,
       AnyUnion_TBODY_THEAD_TFOOT<?, ?> content,
       Page currentPage,
-      long now,
+      LocalDate today,
       List<? extends Task> tasks,
       Map<Task, StatusResult> statuses,
       String label
@@ -353,7 +352,7 @@ public final class TaskImpl {
         Task task = tasks.get(i);
         final Page taskPage = task.getPage();
         StatusResult status = statuses.get(task);
-        Priority priority = getPriorityForStatus(now, task, status);
+        Priority priority = getPriorityForStatus(today, task, status);
         content.tr__any(tr -> {
           if (i == 0) {
             tr.th().rowspan(size).__(label);

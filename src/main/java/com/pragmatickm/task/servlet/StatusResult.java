@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-servlet - Tasks nested within SemanticCMS pages and elements in a Servlet environment.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2022  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2026  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -23,9 +23,8 @@
 
 package com.pragmatickm.task.servlet;
 
-import com.aoapps.lang.util.UnmodifiableCalendar;
 import com.pragmatickm.task.model.TaskLog;
-import java.util.Calendar;
+import java.time.LocalDate;
 
 public class StatusResult {
 
@@ -117,7 +116,7 @@ public class StatusResult {
   private final boolean completedSchedule;
   private final boolean readySchedule;
   private final boolean futureSchedule;
-  private final UnmodifiableCalendar date;
+  private final LocalDate date;
 
   StatusResult(
       Style style,
@@ -126,7 +125,7 @@ public class StatusResult {
       boolean completedSchedule,
       boolean readySchedule,
       boolean futureSchedule,
-      Calendar date
+      LocalDate date
   ) {
     if (completedSchedule && readySchedule) {
       throw new AssertionError("A task may not be both completed and ready");
@@ -140,7 +139,7 @@ public class StatusResult {
     this.completedSchedule = completedSchedule;
     this.readySchedule = readySchedule;
     this.futureSchedule = futureSchedule;
-    this.date = UnmodifiableCalendar.wrap(date);
+    this.date = date;
   }
 
   StatusResult(
@@ -148,7 +147,7 @@ public class StatusResult {
       String comments,
       boolean allDoBeforesCompleted,
       boolean futureSchedule,
-      Calendar date
+      LocalDate date
   ) {
     if (allDoBeforesCompleted) {
       this.style = Style.getStyle(taskStatus);
@@ -161,7 +160,7 @@ public class StatusResult {
     this.completedSchedule = taskStatus.isCompletedSchedule();
     this.readySchedule = allDoBeforesCompleted && !taskStatus.isCompletedSchedule();
     this.futureSchedule = futureSchedule;
-    this.date = UnmodifiableCalendar.wrap(date);
+    this.date = date;
   }
 
   public Style getStyle() {
@@ -188,8 +187,7 @@ public class StatusResult {
     return futureSchedule;
   }
 
-  @SuppressWarnings("ReturnOfDateField") // UnmodifiableCalendar
-  public UnmodifiableCalendar getDate() {
+  public LocalDate getDate() {
     return date;
   }
 }
